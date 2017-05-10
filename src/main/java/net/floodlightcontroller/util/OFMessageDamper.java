@@ -22,8 +22,12 @@ import java.util.Set;
 
 import net.floodlightcontroller.core.IOFSwitch;
 
+import org.projectfloodlight.openflow.protocol.OFFlowAdd;
+import org.projectfloodlight.openflow.protocol.OFFlowMod;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFType;
+import org.projectfloodlight.openflow.protocol.match.MatchField;
+import org.projectfloodlight.openflow.types.IPv4Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,6 +135,13 @@ public class OFMessageDamper {
             return false; 
         } else {
             log.debug("Not dampening new msg {}", msg);
+            OFFlowMod flowMod = (OFFlowMod)msg;
+            IPv4Address ip = flowMod.getMatch().get(MatchField.IPV4_SRC);
+            int impt = flowMod.getImportance();
+            if (ip != null)
+            	log.info("######FLOWMOD-{}-{}", ip.toString(), impt);
+            else
+            	log.info("######FLOWMOD-NULL");
             sw.write(msg);
             return true;
         }

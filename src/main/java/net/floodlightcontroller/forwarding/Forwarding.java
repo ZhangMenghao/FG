@@ -33,6 +33,7 @@ import net.floodlightcontroller.core.IFloodlightProviderService;
 import net.floodlightcontroller.core.IOFSwitch;
 import net.floodlightcontroller.core.IOFSwitchListener;
 import net.floodlightcontroller.core.PortChangeType;
+import net.floodlightcontroller.core.IListener.Command;
 import net.floodlightcontroller.core.internal.IOFSwitchService;
 import net.floodlightcontroller.core.module.FloodlightModuleContext;
 import net.floodlightcontroller.core.module.FloodlightModuleException;
@@ -56,6 +57,7 @@ import net.floodlightcontroller.routing.IRoutingDecision;
 import net.floodlightcontroller.routing.IRoutingDecisionChangedListener;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.Path;
+import net.floodlightcontroller.routing.RoutingDecision;
 import net.floodlightcontroller.topology.ITopologyService;
 import net.floodlightcontroller.util.FlowModUtils;
 import net.floodlightcontroller.util.OFDPAUtils;
@@ -66,6 +68,7 @@ import net.floodlightcontroller.util.ParseUtils;
 
 import org.projectfloodlight.openflow.protocol.OFFlowMod;
 import org.projectfloodlight.openflow.protocol.OFFlowModCommand;
+import org.projectfloodlight.openflow.protocol.OFFlowRemoved;
 import org.projectfloodlight.openflow.protocol.OFGroupType;
 import org.projectfloodlight.openflow.protocol.OFMessage;
 import org.projectfloodlight.openflow.protocol.OFPacketIn;
@@ -224,10 +227,37 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
             }
         }
     }
-
+    
+    @Override
+    public Command receive(IOFSwitch sw, OFMessage msg, FloodlightContext cntx) {
+        switch (msg.getType()) {
+            case PACKET_IN:
+                IRoutingDecision decision = null;
+                if (cntx != null) {
+                    decision = RoutingDecision.rtStore.get(cntx, IRoutingDecision.CONTEXT_DECISION);
+                }
+                Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+                IPv4Address srcIp = null;
+                if (eth.getEtherType() == EthType.IPv4) {
+                	IPv4 ip = (IPv4) eth.getPayload();
+                	srcIp = ip.getSourceAddress();
+                	if (srcIp != null)
+                		log.info("######PACKET_IN-{}-", srcIp.toString());
+                }
+                return this.processPacketInMessage(sw, (OFPacketIn) msg, decision, cntx);
+            case FLOW_REMOVED:
+            	OFFlowRemoved flowRemoved = (OFFlowRemoved) msg;
+            	log.info("######FLOW_REMOVED-{}-", flowRemoved.getMatch().get(MatchField.IPV4_SRC));
+            	break;
+            default:
+                break;
+        }
+        return Command.CONTINUE;
+    }
+    
     @Override
     public Command processPacketInMessage(IOFSwitch sw, OFPacketIn pi, IRoutingDecision decision, FloodlightContext cntx) {
-        Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+    	Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
         // We found a routing decision (i.e. Firewall is enabled... it's the only thing that makes RoutingDecisions)
         if (decision != null) {
             if (log.isTraceEnabled()) {
@@ -240,7 +270,7 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
                 return Command.CONTINUE;
             case FORWARD_OR_FLOOD:
             case FORWARD:
-                doForwardFlow(sw, pi, decision, cntx, false);
+                doForwardFlow(sw, pi, decision, cntx, true);
                 return Command.CONTINUE;
             case MULTICAST:
                 // treat as broadcast
@@ -261,7 +291,7 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
             if (eth.isBroadcast() || eth.isMulticast()) {
                 doFlood(sw, pi, decision, cntx);
             } else {
-                doForwardFlow(sw, pi, decision, cntx, false);
+                doForwardFlow(sw, pi, decision, cntx, true);
             }
         }
 
@@ -416,6 +446,13 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
         DatapathId srcSw = sw.getId();
         IDevice dstDevice = IDeviceService.fcStore.get(cntx, IDeviceService.CONTEXT_DST_DEVICE);
         IDevice srcDevice = IDeviceService.fcStore.get(cntx, IDeviceService.CONTEXT_SRC_DEVICE);
+        
+        Ethernet eth = IFloodlightProviderService.bcStore.get(cntx, IFloodlightProviderService.CONTEXT_PI_PAYLOAD);
+        IPv4Address srcIp = null;
+        if (eth.getEtherType() == EthType.IPv4) {
+        	IPv4 ip = (IPv4) eth.getPayload();
+        	srcIp = ip.getSourceAddress();
+        }
 
         if (dstDevice == null) {
             log.debug("Destination device unknown. Flooding packet");
@@ -477,8 +514,18 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
 
         /* Validate that the source and destination are not on the same switch port */
         if (sw.getId().equals(dstAp.getNodeId()) && srcPort.equals(dstAp.getPortId())) {
-            log.info("Both source and destination are on the same switch/port {}/{}. Dropping packet", sw.toString(), srcPort);
-            return;
+        	if (srcIp != null) {
+        		if (srcIp.toString().equals("10.0.0.10"))
+        			dstAp.setPortId(OFPort.of(1));
+        		if (srcIp.toString().equals("10.0.0.1"))
+        			dstAp.setPortId(OFPort.of(4));
+        		if (sw.getId().equals(dstAp.getNodeId()) && srcPort.equals(dstAp.getPortId()))
+        			return;
+        	} else {
+        		log.info("======NULL-SAME GROUP");
+        		return;
+        	}
+//            log.info("Both source and destination are on the same switch/port {}/{}. Dropping packet", sw.toString(), srcPort);
         }			
 
         U64 flowSetId = flowSetIdRegistry.generateFlowSetId();
