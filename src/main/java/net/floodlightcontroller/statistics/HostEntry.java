@@ -1,19 +1,10 @@
 package net.floodlightcontroller.statistics;
 
-import org.apache.derby.catalog.Statistics;
 import org.projectfloodlight.openflow.protocol.OFFlowStatsEntry;
 import org.projectfloodlight.openflow.protocol.match.Match;
-import org.projectfloodlight.openflow.protocol.stat.Stat;
-import org.projectfloodlight.openflow.types.DatapathId;
 import org.projectfloodlight.openflow.types.IPv4Address;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.IO;
-import com.ziclix.python.sql.util.Queue;
-
-import io.netty.handler.logging.LogLevel;
-import io.netty.util.internal.ThreadLocalRandom;
 
 public class HostEntry {
 	private static final Logger log = LoggerFactory.getLogger(HostEntry.class);
