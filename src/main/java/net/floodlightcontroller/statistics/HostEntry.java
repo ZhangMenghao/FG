@@ -13,30 +13,36 @@ public class HostEntry {
 	private int highFlowNumber;
 	private IPv4Address ip;
 	public static int HOST_INIT_FI = 2;
-	public static int FLOW_MATCH_HIGH_THRESHOLD = 2;
+	public static int FLOW_MATCH_HIGH_THRESHOLD = 1;
 	public static int CONSTANT_T = 2;
 	public int importance;
+	public int pi;
+	public int piCopy;
 	
 	public HostEntry(IPv4Address ipAddress) {
 		number = 0;
 		highFlowNumber = 0;
-		ip = ipAddress;		
-		importance = 2;
+		ip = ipAddress;
+		pi = 0;
+		importance = 1;
 		score = 0;
+		piCopy = 0;
 	}
 	
 	public void init() {
 		number = 0;
 		highFlowNumber = 0;
-		importance = 2;
+		importance = 1;
 		score = 0;
+		pi = piCopy;
+		piCopy = 0;
 	}
 	
 	public void setScore(double s) {
 		score = s;
 	}
 	public String toString() {
-		return String.valueOf((int)score) + " - " + String.valueOf(importance);
+		return String.valueOf(pi) + " - " + String.valueOf((int)score) + " - " + String.valueOf(importance);
 	}
 	public int getHighFlowNumber() {
 		return highFlowNumber;
@@ -48,18 +54,47 @@ public class HostEntry {
 		return score;
 	}
 	
-	public void compute() {
-		if (number == 0) score = 0.000001;
+	public int computeCount() {
+		double s = 0;
+		if (number == 0) s = 0.000001;
 		else
-			score = (double)highFlowNumber / number;
-		score *= 10;
+			s = (double)highFlowNumber / number;
 		int impt = 1;
 		int temp = (int)score;
 		for (int i : StatisticsCollector.scoreImptList) {
 			if (i > temp) break;
 			impt += 1;
 		}
-		importance = impt;
+		return impt;
+	}
+	
+	public void compute() {
+		// count part
+		if (number == 0) score = 0.000001;
+		else
+			score = (double)highFlowNumber / number;
+		score *= 10;
+		int countImpt = 1;
+		int temp = (int)score;
+		for (int i : StatisticsCollector.scoreImptList) {
+			if (i > temp) break;
+			countImpt += 1;
+		}
+		// pi part
+		int piImpt = 0;
+		if (pi >= 500)
+			piImpt = -2;
+		else if (pi >= 300)
+			piImpt = -1;
+		else if (pi >= 200)
+			piImpt = 0;
+		else
+			piImpt = 1;
+		importance = piImpt + countImpt;
+		if (importance < 1)
+			importance = 1;
+		if (importance > 3)
+			importance = 3;
 	}
 	
 //	public void compute() {

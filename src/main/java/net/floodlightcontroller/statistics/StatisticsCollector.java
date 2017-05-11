@@ -66,7 +66,6 @@ public class StatisticsCollector implements IFloodlightModule, IStatisticsServic
 				Map<DatapathId, List<OFStatsReply>> replies = getSwitchStatistics(switchService.getAllSwitchDpids(), OFStatsType.FLOW);
 				for (IPv4Address ip : hostFlowMap.keySet())
 					hostFlowMap.get(ip).init();
-					
 				for (Entry<DatapathId, List<OFStatsReply>> e : replies.entrySet()) {
 					String dpId = e.getKey().toString();
 					for (OFStatsReply reply : e.getValue()) {

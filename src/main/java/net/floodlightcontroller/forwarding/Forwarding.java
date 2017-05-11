@@ -58,6 +58,7 @@ import net.floodlightcontroller.routing.IRoutingDecisionChangedListener;
 import net.floodlightcontroller.routing.IRoutingService;
 import net.floodlightcontroller.routing.Path;
 import net.floodlightcontroller.routing.RoutingDecision;
+import net.floodlightcontroller.statistics.StatisticsCollector;
 import net.floodlightcontroller.topology.ITopologyService;
 import net.floodlightcontroller.util.FlowModUtils;
 import net.floodlightcontroller.util.OFDPAUtils;
@@ -241,8 +242,10 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
                 if (eth.getEtherType() == EthType.IPv4) {
                 	IPv4 ip = (IPv4) eth.getPayload();
                 	srcIp = ip.getSourceAddress();
-                	if (srcIp != null)
+                	if (srcIp != null) {
                 		log.info("######PACKET_IN-{}-", srcIp.toString());
+                		StatisticsCollector.hostFlowMap.get(srcIp).piCopy += 1;
+                	}
                 }
                 return this.processPacketInMessage(sw, (OFPacketIn) msg, decision, cntx);
             case FLOW_REMOVED:

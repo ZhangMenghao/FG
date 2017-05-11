@@ -29,9 +29,8 @@ public class FTGuardManager {
 	
 	private void initScore() {
 		if (flag) return;
-		StatisticsCollector.scoreImptList.add(2);
+		StatisticsCollector.scoreImptList.add(3);
 		StatisticsCollector.scoreImptList.add(6);
-		StatisticsCollector.scoreImptList.add(9);
 		
 		ArrayList<Integer> array1 = new ArrayList<Integer>(); 
 		array1.add(70); array1.add(20); array1.add(10);
