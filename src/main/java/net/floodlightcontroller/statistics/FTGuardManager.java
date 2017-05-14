@@ -22,7 +22,10 @@ public class FTGuardManager {
 		this.addHost(IPv4Address.of("10.0.0.1"), id);
 		this.addHost(IPv4Address.of("10.0.0.2"), id);
 		this.addHost(IPv4Address.of("10.0.0.3"), id);
-		this.addHost(IPv4Address.of("10.0.0.10"), id);
+		this.addHost(IPv4Address.of("10.0.0.4"), id);
+		this.addHost(IPv4Address.of("10.0.0.11"), id);
+		this.addHost(IPv4Address.of("10.0.0.12"), id);
+		this.addHost(IPv4Address.of("10.0.0.13"), id);
 		initScore();
 		this.flag = true;
 	}
@@ -30,7 +33,7 @@ public class FTGuardManager {
 	private void initScore() {
 		if (flag) return;
 		StatisticsCollector.scoreImptList.add(3);
-		StatisticsCollector.scoreImptList.add(6);
+		StatisticsCollector.scoreImptList.add(9);
 		
 		ArrayList<Integer> array1 = new ArrayList<Integer>(); 
 		array1.add(70); array1.add(20); array1.add(10);

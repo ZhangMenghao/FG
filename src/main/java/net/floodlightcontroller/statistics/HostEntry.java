@@ -92,7 +92,7 @@ public class HostEntry {
 		}
 		// pi part
 		int piScore = 0;
-		if (pi >= 500)
+		if (pi >= 400)
 			piScore = 0;
 		else if (pi >= 200)
 			piScore = 1;
@@ -107,7 +107,7 @@ public class HostEntry {
 			score = ALPHA * tempScore + (1.0 - ALPHA) * score;
 //		int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
 		if (score < 1.0) importance = 1;
-		else if (score < 3.0) importance = 2;
+		else if (score < 3.5) importance = 2;
 		else importance = 3;
 	}
 	

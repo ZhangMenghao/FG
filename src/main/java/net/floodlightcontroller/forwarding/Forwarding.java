@@ -518,17 +518,22 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
         /* Validate that the source and destination are not on the same switch port */
         if (sw.getId().equals(dstAp.getNodeId()) && srcPort.equals(dstAp.getPortId())) {
         	if (srcIp != null) {
-        		if (srcIp.toString().equals("10.0.0.10"))
-        			dstAp.setPortId(OFPort.of(1));
         		if (srcIp.toString().equals("10.0.0.1"))
-        			dstAp.setPortId(OFPort.of(4));
-        		if (sw.getId().equals(dstAp.getNodeId()) && srcPort.equals(dstAp.getPortId()))
+        			dstAp.setPortId(OFPort.of(5));
+        		else if (srcIp.toString().equals("10.0.0.11"))
+        			dstAp.setPortId(OFPort.of(1));
+        		else if (srcIp.toString().equals("10.0.0.12"))
+        			dstAp.setPortId(OFPort.of(2));
+        		else if (srcIp.toString().equals("10.0.0.13"))
+        			dstAp.setPortId(OFPort.of(3));
+        		if (sw.getId().equals(dstAp.getNodeId()) && srcPort.equals(dstAp.getPortId())) {
+        			log.info("######SAME_GROUP-{}-", srcIp.toString());
         			return;
+        		}
         	} else {
-        		log.info("======NULL-SAME GROUP");
+        		log.info("######SAME_GROUP-NULL-");
         		return;
         	}
-//            log.info("Both source and destination are on the same switch/port {}/{}. Dropping packet", sw.toString(), srcPort);
         }			
 
         U64 flowSetId = flowSetIdRegistry.generateFlowSetId();
