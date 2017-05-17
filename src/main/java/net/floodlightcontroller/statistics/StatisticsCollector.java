@@ -166,7 +166,6 @@ public class StatisticsCollector implements IFloodlightModule, IStatisticsServic
 	@Override
 	public void init(FloodlightModuleContext context)
 			throws FloodlightModuleException {
-		ftGuardManager.init();
 		switchService = context.getServiceImpl(IOFSwitchService.class);
 		threadPoolService = context.getServiceImpl(IThreadPoolService.class);
 		restApiService = context.getServiceImpl(IRestApiService.class);

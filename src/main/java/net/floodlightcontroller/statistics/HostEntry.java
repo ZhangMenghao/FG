@@ -19,10 +19,6 @@ public class HostEntry {
 	public boolean FIRST_SCORE;
 	private int highFlowNumber;
 	private int number; // Ni
-	public static double ALPHA = 0.8;
-	public static int HOST_INIT_FI = 2;
-	public static int FLOW_MATCH_HIGH_THRESHOLD = 1;
-	public static int CONSTANT_T = 2;
 	
 	public HostEntry(IPv4Address ipAddress) {
 		number = 0;
@@ -64,20 +60,6 @@ public class HostEntry {
 		return score;
 	}
 	
-	public int computeCount() {
-		double s = 0;
-		if (number == 0) s = 0.000001;
-		else
-			s = (double)highFlowNumber / number;
-		int impt = 1;
-		int temp = (int)score;
-		for (int i : StatisticsCollector.scoreImptList) {
-			if (i > temp) break;
-			impt += 1;
-		}
-		return impt;
-	}
-	
 	public void compute() {
 		// count part
 		double temp = 0.0;
@@ -92,9 +74,9 @@ public class HostEntry {
 		}
 		// pi part
 		int piScore = 0;
-		if (pi >= 400)
+		if (pi >= FTGuardManager.piPara1)
 			piScore = 0;
-		else if (pi >= 200)
+		else if (pi >= FTGuardManager.piPara2)
 			piScore = 1;
 		else
 			piScore = 2;
@@ -104,8 +86,8 @@ public class HostEntry {
 			score = tempScore;
 		}
 		else
-			score = ALPHA * tempScore + (1.0 - ALPHA) * score;
-//		int randomNum = ThreadLocalRandom.current().nextInt(0, 100);
+			score = FTGuardManager.alpha * tempScore + (1.0 - FTGuardManager.alpha) * score;
+
 		if (score < 1.0) importance = 1;
 		else if (score < 3.5) importance = 2;
 		else importance = 3;
@@ -114,7 +96,7 @@ public class HostEntry {
 	public void udpateByReply(OFFlowStatsEntry pse) {
 		int packetCount = (int)pse.getPacketCount().getValue();
         number += 1;
-        if (packetCount > FLOW_MATCH_HIGH_THRESHOLD) {
+        if (packetCount > FTGuardManager.highCount) {
             this.highFlowNumber += 1;
         }
 	}

@@ -243,14 +243,14 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
                 	IPv4 ip = (IPv4) eth.getPayload();
                 	srcIp = ip.getSourceAddress();
                 	if (srcIp != null) {
-                		log.info("######PACKET_IN-{}-", srcIp.toString());
+                		log.debug("######PACKET_IN-{}-", srcIp.toString());
                 		StatisticsCollector.hostFlowMap.get(srcIp).piCopy += 1;
                 	}
                 }
                 return this.processPacketInMessage(sw, (OFPacketIn) msg, decision, cntx);
             case FLOW_REMOVED:
             	OFFlowRemoved flowRemoved = (OFFlowRemoved) msg;
-            	log.info("######FLOW_REMOVED-{}-", flowRemoved.getMatch().get(MatchField.IPV4_SRC));
+            	log.debug("######FLOW_REMOVED-{}-", flowRemoved.getMatch().get(MatchField.IPV4_SRC));
             	break;
             default:
                 break;
@@ -527,11 +527,11 @@ public class Forwarding extends ForwardingBase implements IFloodlightModule, IOF
         		else if (srcIp.toString().equals("10.0.0.13"))
         			dstAp.setPortId(OFPort.of(3));
         		if (sw.getId().equals(dstAp.getNodeId()) && srcPort.equals(dstAp.getPortId())) {
-        			log.info("######SAME_GROUP-{}-", srcIp.toString());
+        			log.debug("######SAME_GROUP-{}-", srcIp.toString());
         			return;
         		}
         	} else {
-        		log.info("######SAME_GROUP-NULL-");
+        		log.debug("######SAME_GROUP-NULL-");
         		return;
         	}
         }			

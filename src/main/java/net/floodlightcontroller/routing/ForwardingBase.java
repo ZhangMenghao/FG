@@ -286,7 +286,7 @@ public abstract class ForwardingBase implements IOFMessageListener {
 						impt = StatisticsCollector.hostFlowMap.get(srcIp).importance;
 					} catch (Exception e) {
 						// TODO: handle exception
-						log.info("###### {} NOT INSERTED", srcIp.toString());
+						log.debug("###### {} NOT INSERTED", srcIp.toString());
 					}
             		fmb.setImportance(impt);
             	}
@@ -441,7 +441,7 @@ public abstract class ForwardingBase implements IOFMessageListener {
 
         Match.Builder mb = sw.getOFFactory().buildMatch();
         List<OFAction> actions = new ArrayList<OFAction>(); // Set no action to drop
-        mb.setExact(MatchField.IN_PORT, inputPort);
+        mb.setExact(MatchField.IN_PORT, inputPort); 
         if (host_mac.getLong() != -1L) {
             mb.setExact(MatchField.ETH_SRC, host_mac);
         }
@@ -467,7 +467,7 @@ public abstract class ForwardingBase implements IOFMessageListener {
 
     @Override
     public boolean isCallbackOrderingPrereq(OFType type, String name) {
-        return (type.equals(OFType.PACKET_IN) && (name.equals("topology") || name.equals("devicemanager")));
+        return (type.equals(OFType.PACKET_IN) && (name.equals("topology") || name.equals("devicemanager") || name.equals("statistics")));
     }
 
     @Override

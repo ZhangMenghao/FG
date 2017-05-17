@@ -139,9 +139,9 @@ public class OFMessageDamper {
             IPv4Address ip = flowMod.getMatch().get(MatchField.IPV4_SRC);
             int impt = flowMod.getImportance();
             if (ip != null)
-            	log.info("######FLOWMOD-{}-{}", ip.toString(), impt);
+            	log.debug("######FLOWMOD-{}-{}", ip.toString(), impt);
             else
-            	log.info("######FLOWMOD-NULL");
+            	log.debug("######FLOWMOD-NULL");
             sw.write(msg);
             return true;
         }
