@@ -19,4 +19,4 @@ findbugs-results
 Scripts/data/*.cach
 Scripts/data/*.pcap
 Scripts/tt
-Scripts/table
+Scripts/*table
