@@ -16,3 +16,7 @@ findbugs-results
 *.iml
 .metadata/
 /bin/
+Scripts/data/*.cach
+Scripts/data/*.pcap
+Scripts/tt
+Scripts/table
